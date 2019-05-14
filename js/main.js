@@ -4,14 +4,14 @@ $(function() {
 	$('.regenerate').click(function (evt) {
 	    Birb.birds = makeBirds(Birb.initialBirdData, Birb.mapWidth, Birb.mapHeight);
 	    drawFullMap(Birb.birds, Birb.canvasContext);
-		Birb.birds = playBirds(Birb.birds, Birb.audioContext, Birb.targetNode);
+		// Birb.birds = playBirds(Birb.birds, Birb.audioContext, Birb.targetNode);
 
 		console.log("clicking regenerate!!!");
 	});
 
 	$('.play').click(function (evt) {
 		// Birb.birds = playBirds(Birb.birds, Birb.audioContext, Birb.targetNode);
-		Birb.audioPlayer.playBirds();
+		Birb.audioPlayer.playBirds(Birb.birds);
 	});
 
 	window.onscroll = function(e){ reOffset(); }
@@ -41,7 +41,8 @@ $(function() {
 			// console.log(panning);
 			Birb.maker.updateBirdPlaces(panning);
 			Birb.birds = Birb.maker.getBirds();
-			Birb.map.drawFullMap(Birb.birds);	
+			Birb.map.drawFullMap(Birb.birds);
+			Birb.audioPlayer.handleMouseMove(Birb.birds);
 		}
 		
 	});

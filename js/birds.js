@@ -4,6 +4,8 @@ function BirdMaker(data, width, height, mapW, mapH) {
 	this.h = height;
 	this.mapW = mapW;
 	this.mapH = mapH;
+
+	console.log(this.mapW + ", " + this.mapH);
 }
 
 BirdMaker.prototype.getBirds = function() {
@@ -46,7 +48,6 @@ BirdMaker.prototype.makeBird = function(w, h, center, s) {
 		b: Math.random() * 255
 	};
 
-	bird.name = "dove";
 	bird.source = s;
 	return bird;
 }
@@ -56,7 +57,7 @@ BirdMaker.prototype.updateBirdPlaces = function(panning) {
 		var bird = this.birds[i];
 		bird.pos.x = bird.fixedPos.x + panning.x;
 		bird.pos.y = bird.fixedPos.y + panning.y;
-		bird.isVisible = checkIsVisible(bird.pos.x, bird.pos.y);
+		bird.isVisible = checkIsVisible(bird.pos.x, bird.pos.y, this.mapW, this.mapH);
 
 		bird.azi = calcAngle(this.center, bird.pos);
 		bird.dist = calcDistance(this.center, bird.pos);
@@ -69,8 +70,11 @@ BirdMaker.prototype.updateBirdPlaces = function(panning) {
 /// ------------ Helpers ----------------------------------
 
 
-function checkIsVisible(x, y) {
-	if (x < 0 || y < 0 || x >= this.mapW || y >= this.mapH) {
+function checkIsVisible(x, y, w, h) {
+	if (x < 0 || y < 0) {
+		return false;
+	}
+	if (x >= w || y >= h) {
 		return false;
 	}
 	return true;
