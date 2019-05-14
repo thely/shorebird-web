@@ -10,7 +10,7 @@ BufferLoader.prototype.loadBuffer = function(url, index) {
     var request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.responseType = "arraybuffer";
-    console.log(request);
+    // console.log(request);
 
     var loader = this;
 
@@ -23,8 +23,10 @@ BufferLoader.prototype.loadBuffer = function(url, index) {
                     return;
                 }
                 loader.bufferList[index] = buffer;
-                if (++loader.loadCount == loader.urlList.length)
+                if (++loader.loadCount == loader.urlList.length) {
                     loader.onload(loader.bufferList);
+                    // return loader.bufferList;
+                }
             }    
         );
     }
@@ -39,7 +41,6 @@ BufferLoader.prototype.loadBuffer = function(url, index) {
 BufferLoader.prototype.load = function() {
     for (var i = 0; i < this.urlList.length; ++i)
         this.loadBuffer(this.urlList[i], i);
-
     // for (var key in this.urlList) {
     //     if (this.urlList.hasOwnProperty(key)) {
     //         this.loadBuffer(this.urlList[key], key);

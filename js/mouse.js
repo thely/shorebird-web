@@ -1,8 +1,10 @@
 
-function MouseFollow() {
+function MouseFollow(offset) {
 	// this.center = [0,0];
-	this.offset = [0,0];
-	this.netPanning = [0,0];
+	this.setOffset(offset);
+	this.netPanning = {
+		x: 0, y: 0
+	};
 	
 	this.isDown = false;
 	this.mouse = {
@@ -17,6 +19,10 @@ function MouseFollow() {
 	}
 
 	// this.reOffset();
+}
+
+MouseFollow.prototype.setOffset = function(off) {
+	this.offset = off;
 }
 
 MouseFollow.prototype.handleMouseDown = function(e){
