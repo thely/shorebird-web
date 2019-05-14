@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Bare - Start Bootstrap Template</title>
+
+  <!-- Bootstrap core CSS -->
+  <script src="vendor/jquery/jquery.min.js"></script> 
+  <script src="vendor/jquery/jquery.knob.js"></script> 
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="main.css" rel="stylesheet">
+  <script src="vendor/binaural/binaural.min.js"></script>
+  <script src="vendor/binaural/hrtf.js"></script>
+  <script src="vendor/binaural/buffer-loader.js"></script>
+  <!-- <script src="vendor/binaural/howler.core.js"></script> -->
+  <script src="js/globals.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/canvas.js"></script>
+  <script src="js/mouse.js"></script>
+  <script src="js/main.js"></script>
+
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">Start Bootstrap</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Home
+              <span class="sr-only">(current)</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Services</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Contact</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <h1 class="mt-5">A Bootstrap 4 Starter Template</h1>
+        <!-- <audio id="source" src="./audio/dove.wav" controls loop></audio> -->
+        <section>
+          <pre>Azimuth</pre>
+          <p><button class="regenerate">Regenerate birds!</button></p>
+          <p><button class="play">Play birds!</button></p>
+
+          <p><canvas id="mapZone" width="500" height="500"></canvas></p>
+
+          <input type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5" data-min="-180" data-max="180" data-rotation="clockwise" />
+          <!-- <input type="range" min="-180" max="180" step="0.1" class="vs1" /> -->
+          <pre>Elevation</pre>
+          <input type="range" min="-90" max="90" step="0.5" class="vs3" />
+          <pre>Distance</pre>
+          <input type="range" min="0" max="120" step="0.5" class="vs2" />
+
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap core JavaScript -->
+
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
