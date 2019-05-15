@@ -1,3 +1,3 @@
 ## shorebird-web
 
-Web app version of the Shorebird Sonification project. In progress.
+In-progress web app version of the Shorebird Sonification project.
