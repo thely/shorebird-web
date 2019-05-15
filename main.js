@@ -45,7 +45,6 @@ $(function() {
 		}
 		
 		if (panning) {
-			// console.log(panning);
 			timeout = window.requestAnimationFrame(function() {
 				Birb.maker.updateBirdPlaces(panning);
 				Birb.birds = Birb.maker.getBirds();
@@ -57,10 +56,10 @@ $(function() {
 		
 	});
 
-	Birb.maker = new BirdMaker(Birb.initialBirdData, Birb.mapWidth, Birb.mapHeight, Birb.windowWidth, Birb.windowHeight);
+	Birb.maker = new BirdMaker(Birb.initialBirdData, Birb.dim);
 	Birb.birds = Birb.maker.getBirds();
 
-	Birb.map = new ShoreMap("mapZone", Birb.windowWidth, Birb.windowHeight, Birb.mapWidth, Birb.mapHeight);
+	Birb.map = new ShoreMap("mapZone", Birb.dim);
 	Birb.map.drawFullMap(Birb.birds);
 
 	Birb.mouse = new MouseFollow(Birb.map.reOffset());
