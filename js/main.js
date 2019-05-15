@@ -47,7 +47,6 @@ $(function() {
 		
 	});
 
-	// Birb.canvasContext = buildMapViewer(Birb.windowWidth, Birb.windowHeight);
 	Birb.maker = new BirdMaker(Birb.initialBirdData, Birb.mapWidth, Birb.mapHeight, Birb.windowWidth, Birb.windowHeight);
 	Birb.birds = Birb.maker.getBirds();
 
@@ -57,13 +56,7 @@ $(function() {
 	Birb.mouse = new MouseFollow(Birb.map.reOffset());
 
 	Birb.audioPlayer = new AudioPlayer(Birb.birds, Birb.soundsDict);
-	// Birb.audioContext = audioContextCheck();
-	// Birb.targetNode = Birb.audioContext.destination; //output node
 
-	
-
-	// drawFullMap(Birb.birds, Birb.canvasContext);
-	// Birb.birds = playBirds(Birb.birds, audioContext, targetNode);
 });
 
 

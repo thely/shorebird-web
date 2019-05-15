@@ -3,13 +3,11 @@
 // from the JSON bird data.
 
 function BirdMaker(data, width, height, mapW, mapH) {
-	this.birds = this.makeBirds(data);
 	this.w = width;
 	this.h = height;
 	this.mapW = mapW;
 	this.mapH = mapH;
-
-	console.log(this.mapW + ", " + this.mapH);
+	this.birds = this.makeBirds(data);
 }
 
 BirdMaker.prototype.getBirds = function() {
@@ -30,6 +28,8 @@ BirdMaker.prototype.makeBirds = function(data) {
 	for (var i = 0; i < data.length; i++) {
 		birds[i] = this.makeBird(width, height, center, data[i]);
 	}
+
+	this.birds = birds;
 
 	return birds;
 }
