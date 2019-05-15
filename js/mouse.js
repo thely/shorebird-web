@@ -17,8 +17,6 @@ function MouseFollow(offset) {
 			y: 0
 		}
 	}
-
-	// this.reOffset();
 }
 
 MouseFollow.prototype.setOffset = function(off) {
@@ -92,5 +90,12 @@ MouseFollow.prototype.handleMouseMove = function(e){
 	this.netPanning.x += dx;
 	this.netPanning.y += dy;
 
+	var maxXDiff = Birb.mapWidth - Birb.windowWidth;
+	var maxYDiff = Birb.mapHeight - Birb.windowHeight;
+	this.netPanning.x = Math.max(Math.min(this.netPanning.x, 0), -maxXDiff);
+	this.netPanning.y = Math.max(Math.min(this.netPanning.y, 0), -maxYDiff);
+
 	return this.netPanning;	
 }
+
+

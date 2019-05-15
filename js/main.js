@@ -1,5 +1,4 @@
 
-
 $(function() {
 	$('.regenerate').click(function (evt) {
 	    Birb.birds = Birb.maker.makeBirds(Birb.initialBirdData);
@@ -35,14 +34,25 @@ $(function() {
 	// Mouse drag: calculate the panning, redraw the map w/panning,
 	// recalc all the azimuths/distances based on new data, use that
 	// to update all the audio nodes
+
+	var timeout;
+
 	$("#mapZone").mousemove(function(e){
 		var panning = Birb.mouse.handleMouseMove(e);
+
+		if (timeout) {
+			window.cancelAnimationFrame(timeout);
+		}
+		
 		if (panning) {
 			// console.log(panning);
-			Birb.maker.updateBirdPlaces(panning);
-			Birb.birds = Birb.maker.getBirds();
-			Birb.map.drawFullMap(Birb.birds);
-			Birb.audioPlayer.handleMouseMove(Birb.birds);
+			timeout = window.requestAnimationFrame(function() {
+				Birb.maker.updateBirdPlaces(panning);
+				Birb.birds = Birb.maker.getBirds();
+				Birb.map.drawFullMap(Birb.birds, panning);
+				Birb.audioPlayer.handleMouseMove(Birb.birds);	
+			});
+			
 		}
 		
 	});
@@ -50,7 +60,7 @@ $(function() {
 	Birb.maker = new BirdMaker(Birb.initialBirdData, Birb.mapWidth, Birb.mapHeight, Birb.windowWidth, Birb.windowHeight);
 	Birb.birds = Birb.maker.getBirds();
 
-	Birb.map = new ShoreMap("mapZone", Birb.windowWidth, Birb.windowHeight);
+	Birb.map = new ShoreMap("mapZone", Birb.windowWidth, Birb.windowHeight, Birb.mapWidth, Birb.mapHeight);
 	Birb.map.drawFullMap(Birb.birds);
 
 	Birb.mouse = new MouseFollow(Birb.map.reOffset());

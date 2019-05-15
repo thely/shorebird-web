@@ -33,16 +33,13 @@ AudioPlayer.prototype.outsideSound = function(bufferList) {
 }
 
 AudioPlayer.prototype.handleMouseMove = function(birds) {
-	console.log("inside mouse move for audio player?");
 	for (var i = 0; i < this.birdNodes.length; i++) {
 		var b = birds[i];
 
 		if (b.visible.now) {
 			this.birdNodes[i].pan(b.azi, b.dist);
-			// this.birdNodes[i].gain(0.2);
 			
 			var x = Math.min(1 / (4 * Math.PI * Math.pow(b.dist, 2)), 0.5);
-			console.log("the gain could be: "+x);
 			this.birdNodes[i].GainNode.gain.exponentialRampToValueAtTime(x, this.context.currentTime + 0.75);
 		}
 		else if (!b.visible.now && b.visible.then) {

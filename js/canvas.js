@@ -1,13 +1,24 @@
 
 // Draws and updates the map.
 
-function ShoreMap(mapClass, w, h) {
+function ShoreMap(mapClass, w, h, mapW, mapH) {
 	// this.island = island;
 	// this.birds = birds;
 	this.canvas = document.getElementById(mapClass);
 	this.context = this.canvas.getContext("2d");
 	this.width = w;
 	this.height = h;
+
+	// mapDim is the dimensions of the full (partially hidden) map
+	// viewDim is the dimensions of the viewport (visible map)
+	this.mapDim = {
+		w: mapW,
+		h: mapH
+	}
+	this.viewDim = {
+		w: w,
+		h: h
+	}
 	this.center = { x: 0, y: 0 };
 
 	this.reOffset = function(){
@@ -19,15 +30,17 @@ function ShoreMap(mapClass, w, h) {
 	}
 }
 
-ShoreMap.prototype.drawFullMap = function(birds) {
-	this.baseMap();
+ShoreMap.prototype.drawFullMap = function(birds, panning) {
+	this.baseMap(panning);
 	// this.birds = birds;
 	this.drawBirds(birds);
 }
 
-ShoreMap.prototype.baseMap = function() {
+ShoreMap.prototype.baseMap = function(panning) {
 	this.context.fillStyle = "#FFFFFF";
-	this.context.fillRect(0, 0, this.width, this.height);
+	this.context.fillRect(0, 0, this.viewDim.w, this.viewDim.h);
+
+	this.getLargerMap(panning);
 
 	// draw the center point
 	this.center = this.getCenter();
@@ -45,9 +58,22 @@ ShoreMap.prototype.drawBirds = function(birds) {
 
 ShoreMap.prototype.getCenter = function() {
 	return {
-		x: this.width / 2,
-		y: this.height / 2
+		x: this.viewDim.w / 2,
+		y: this.viewDim.h / 2
 	};
+}
+
+ShoreMap.prototype.getLargerMap = function(panning) {
+	this.context.fillStyle = "#d3f2d3";
+	var start;
+	if (panning) {
+		start = panning;
+	}
+	else {
+		start = { x: 0, y: 0 };
+	}
+	
+	this.context.fillRect(start.x, start.y, this.mapDim.w, this.mapDim.h);
 }
 
 
