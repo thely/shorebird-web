@@ -5,3 +5,4 @@ package-lock.json
 bootstrap/*
 jquery/*
 .DS_STORE
+birdset/
