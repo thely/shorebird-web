@@ -2,8 +2,8 @@
 
 $(function() {
 	$('.regenerate').click(function (evt) {
-	    Birb.birds = makeBirds(Birb.initialBirdData, Birb.mapWidth, Birb.mapHeight);
-	    drawFullMap(Birb.birds, Birb.canvasContext);
+	    Birb.birds = Birb.maker.makeBirds(Birb.initialBirdData);
+	    Birb.map.drawFullMap(Birb.birds);
 		// Birb.birds = playBirds(Birb.birds, Birb.audioContext, Birb.targetNode);
 
 		console.log("clicking regenerate!!!");

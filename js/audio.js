@@ -1,7 +1,7 @@
-// var bufferLoader;
-// var aContext;
-// var myBirds;
-var birdNodes = [];
+
+// Loads and plays the audio files. BufferLoader loads all files,
+// and each node of sound is a BirdNode. BirdNodes and individual birds are
+// not necessarily one to one.
 
 function AudioPlayer(birds, allSounds) {
 	this.context = audioContextCheck();
@@ -30,27 +30,26 @@ AudioPlayer.prototype.playBirds = function(birds) {
 
 AudioPlayer.prototype.outsideSound = function(bufferList) {
 	this.bufferList = bufferList;
-
-	// console.log(this);
-	// var hrtf = getHRTF(this.context);
-	// console.log(this.birds);
-
-	// for (var i = 0; i < this.birds.length; i++) {
-	// 	this.birdNodes[i] = new BirdNode(hrtf, bufferList[this.birds[i].source], this.birds[i].azi, this.birds[i].dist);
-	// 	this.birdNodes[i].play(i * 0.5 + Math.random());
-	// }
 }
 
 AudioPlayer.prototype.handleMouseMove = function(birds) {
 	console.log("inside mouse move for audio player?");
 	for (var i = 0; i < this.birdNodes.length; i++) {
 		var b = birds[i];
-		if (!birds[i].isVisible) {
-			this.birdNodes[i].gain(0);
+
+		if (b.visible.now) {
+			this.birdNodes[i].pan(b.azi, b.dist);
+			// this.birdNodes[i].gain(0.2);
+			
+			var x = Math.min(1 / (4 * Math.PI * Math.pow(b.dist, 2)), 0.5);
+			console.log("the gain could be: "+x);
+			this.birdNodes[i].GainNode.gain.exponentialRampToValueAtTime(x, this.context.currentTime + 0.75);
+		}
+		else if (!b.visible.now && b.visible.then) {
+			this.birdNodes[i].GainNode.gain.exponentialRampToValueAtTime(0.0001, this.context.currentTime + 0.5);
 		}
 		else {
-			this.birdNodes[i].pan(birds[i].azi, birds[i].dist);
-			this.birdNodes[i].gain(0.2);
+			
 		}
 	}
 }
@@ -119,24 +118,8 @@ function audioContextCheck() {
 	}
 };
 
-// -------- Old panner code ---------------------
 
-$(".vs1").val(0);
-$(".vs1").knob({
-	'change': function(v) {
-		Birb.changeAzimuth(v);
-	}
-});
 
-// $(".vs3").val(0);
-$(".vs3").on("input", function(evt) {
-	console.log("elevation change: "+evt.target.value);
-	var pos = binauralNode.getPosition();
-	binauralNode.setPosition(pos.azimuth, evt.target.value, pos.distance);
-});
 
-// Distance
-$(".vs2").on("input", function(evt) {
-	Birb.changeDistance(evt.target.value);
-});
 
+// copied JS:

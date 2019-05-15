@@ -1,6 +1,5 @@
-var ctx;
-var fullWidth, fullHeight;
-// var myBirdsViewer;
+
+// Draws and updates the map.
 
 function ShoreMap(mapClass, w, h) {
 	// this.island = island;
@@ -22,8 +21,7 @@ function ShoreMap(mapClass, w, h) {
 
 ShoreMap.prototype.drawFullMap = function(birds) {
 	this.baseMap();
-	// bigPanNonsense(ctx);
-	this.birds = birds;
+	// this.birds = birds;
 	this.drawBirds(birds);
 }
 
