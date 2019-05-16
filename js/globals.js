@@ -6,8 +6,8 @@ var Birb = [];
 // viewDim is the dimensions of the viewport (visible map)
 Birb.dim = {
 	"map": {
-		"w": 8 * 94,
-		"h": 8 * 82
+		"w": 20 * 94,
+		"h": 20 * 82
 	},
 	"view": {
 		"w": 500,

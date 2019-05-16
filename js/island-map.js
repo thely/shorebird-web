@@ -7,7 +7,7 @@ function IslandMap(ctx, dim, data) {
 	this.dim = dim;
 	this.name = data["name"];
 	this.pixelList = data["pixel_cover_list"];
-	this.colorList = data["habitat_pixel_colors"];
+	this.colorList = __fixColors(data["habitat_pixel_colors"]);
 	this.ctx = ctx;
 
 	this.scaling = this.scaleFactor(dim.map);
@@ -28,14 +28,6 @@ IslandMap.prototype.drawHabitats = function(panning) {
 
 	for (var i = 0; i < this.pixelList.length; i++) {
 		var hab = this.pixelList[i];
-		var color = __generateColor(this.colorList[hab]);
-		this.ctx.fillStyle = color;
-
-		// var start = {
-		// 	"x": (Math.floor(i / this.orig.row) * this.scaling.x) + panning.x,
-		// 	"y": ((i % this.orig.col) * this.scaling.y) + panning.y
-		// }
-		// var startNextY = i / this.orig.row
 
 		var start = {
 			"x": (Math.floor(i / this.orig.row) * this.scaling.x) + panning.x,
@@ -46,7 +38,11 @@ IslandMap.prototype.drawHabitats = function(panning) {
 			"h": this.scaling.y
 		}
 
-		this.ctx.fillRect(start.x, start.y, size.w, size.h);
+		if (__isTileVisible(start, size, this.dim.map)) {
+			var color = this.colorList[hab];
+			this.ctx.fillStyle = color;
+			this.ctx.fillRect(start.x, start.y, size.w, size.h);
+		}
 	}
 }
 
@@ -54,4 +50,23 @@ function __generateColor(color) {
 	var c = "rgb("+ color[0]*255 +","+ color[1]*255 +","+ color[2]*255 +")";
 	return c;
 }
+
+function __fixColors(colorList) {
+	for (key in colorList) {
+		colorList[key] = __generateColor(colorList[key]);
+	}
+
+	return colorList;
+}
+
+function __isTileVisible(start, size, mapDim) {
+	if (start.x + size.w < 0 && start.y + size.y < 0) {
+		return false;
+	}
+	if (start.x >= mapDim.w && start.y >= mapDim.h) {
+		return false;
+	}
+	return true;
+}
+
 

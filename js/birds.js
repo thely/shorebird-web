@@ -3,10 +3,6 @@
 // from the JSON bird data.
 
 function BirdMaker(data, dim) {
-	// this.w = width;
-	// this.h = height;
-	// this.mapW = mapW;
-	// this.mapH = mapH;
 	this.dim = dim
 	this.birds = this.makeBirds(data);
 }
