@@ -1,25 +1,26 @@
 
 function IslandMap(ctx, dim, data) {
-	this.orig = {
-		"row": 94,
-		"col": 82
-	}
+	// this.orig = {
+	// 	"row": 94,
+	// 	"col": 82
+	// }
 	this.dim = dim;
 	this.name = data["name"];
 	this.pixelList = data["pixel_cover_list"];
 	this.colorList = __fixColors(data["habitat_pixel_colors"]);
 	this.ctx = ctx;
 
-	this.scaling = this.scaleFactor(dim.map);
+	// this.scaling = this.scaleFactor(dim.map);
+	this.scaling = {x:Birb.scale, y:Birb.scale};
 }
 
-IslandMap.prototype.scaleFactor = function(dim) {
-	var scale = { x: 0, y: 0 };
-	scale.x = Math.floor(dim.w / this.orig.row);
-	scale.y = Math.floor(dim.h / this.orig.col);
+// IslandMap.prototype.scaleFactor = function(dim) {
+// 	var scale = { x: 0, y: 0 };
+// 	scale.x = Math.floor(dim.w / this.orig.row);
+// 	scale.y = Math.floor(dim.h / this.orig.col);
 
-	return scale;
-}
+// 	return scale;
+// }
 
 IslandMap.prototype.drawHabitats = function(panning) {
 	if (!panning) {
@@ -30,8 +31,8 @@ IslandMap.prototype.drawHabitats = function(panning) {
 		var hab = this.pixelList[i];
 
 		var start = {
-			"x": (Math.floor(i / this.orig.row) * this.scaling.x) + panning.x,
-			"y": ((i % this.orig.row) * this.scaling.y) + panning.y,
+			"x": (Math.floor(i / Birb.base.rows) * this.scaling.x) + panning.x,
+			"y": ((i % Birb.base.rows) * this.scaling.y) + panning.y,
 		}
 		var size = {
 			"w": this.scaling.x,
@@ -42,6 +43,12 @@ IslandMap.prototype.drawHabitats = function(panning) {
 			var color = this.colorList[hab];
 			this.ctx.fillStyle = color;
 			this.ctx.fillRect(start.x, start.y, size.w, size.h);
+			if (Birb.tileList.includes(i) || i == 0 || i == 10) {
+				// console.log(i+" is in it!");
+				this.ctx.strokeStyle = "#FF0000";
+				this.ctx.strokeRect(start.x, start.y-Birb.scale, size.w, size.h);
+				//uncomfortable hack: -Birb.scale
+			}
 		}
 	}
 }
