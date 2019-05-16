@@ -4,10 +4,16 @@ var Birb = [];
 
 // mapDim is the dimensions of the full (partially hidden) map
 // viewDim is the dimensions of the viewport (visible map)
+
+Birb.scale = 25;
+Birb.base = {
+	rows: 94,
+	cols: 82
+}
 Birb.dim = {
 	"map": {
-		"w": 20 * 94,
-		"h": 20 * 82
+		"w": Birb.scale * Birb.base.rows,
+		"h": Birb.scale * Birb.base.cols
 	},
 	"view": {
 		"w": 500,

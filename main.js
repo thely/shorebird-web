@@ -56,8 +56,14 @@ $(function() {
 		
 	});
 
-	Birb.maker = new BirdMaker(Birb.initialBirdData, Birb.dim);
+	var today = cobb_data["birds_and_days"][0]["count"];
+	var habitats = cobb_data["habitats_in_pixels"];
+	// var bird_species_data
+
+	Birb.maker = new BirdMaker(bird_species_data, today, habitats, Birb.dim);
 	Birb.birds = Birb.maker.getBirds();
+	// console.log("in main: ");
+	// console.log(Birb.birds);
 
 	Birb.map = new ShoreMap("mapZone", Birb.dim, cobb_data);
 	Birb.map.drawFullMap(Birb.birds);

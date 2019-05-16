@@ -32,6 +32,7 @@ ShoreMap.prototype.baseMap = function(panning) {
 	this.context.fillRect(0, 0, this.dim.view.w, this.dim.view.h);
 
 	this.island.drawHabitats(panning);
+	// this.getLargerMap(panning);
 
 	// draw the center point
 	this.center = this.getCenter();

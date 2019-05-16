@@ -16,11 +16,15 @@
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="main.css" rel="stylesheet">
   
+  <script src="vendor/random.js"></script>
   <script src="vendor/binaural/binaural.min.js"></script>
   <script src="vendor/binaural/hrtf.js"></script>
   <script src="vendor/binaural/buffer-loader.js"></script>
-  
+  <script>
+    var random = new Random(Random.engines.mt19937().autoSeed());
+  </script>
   <script src="data/cobb-island-data.js"></script>
+  <script src="data/bird-species-data.js"></script>
   <script src="js/globals.js"></script>
   <script src="js/birds.js"></script>
   <script src="js/audio.js"></script>
