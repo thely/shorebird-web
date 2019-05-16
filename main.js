@@ -62,8 +62,6 @@ $(function() {
 
 	Birb.maker = new BirdMaker(bird_species_data, today, habitats, Birb.dim);
 	Birb.birds = Birb.maker.getBirds();
-	// console.log("in main: ");
-	// console.log(Birb.birds);
 
 	Birb.map = new ShoreMap("mapZone", Birb.dim, cobb_data);
 	Birb.map.drawFullMap(Birb.birds);

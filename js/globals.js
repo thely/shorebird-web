@@ -5,21 +5,22 @@ var Birb = [];
 // mapDim is the dimensions of the full (partially hidden) map
 // viewDim is the dimensions of the viewport (visible map)
 
-Birb.scale = 25;
+Birb.scale = 15;
 Birb.base = {
 	rows: 94,
 	cols: 82
-}
+};
 Birb.dim = {
 	"map": {
-		"w": Birb.scale * Birb.base.rows,
-		"h": Birb.scale * Birb.base.cols
+		"h": Birb.scale * Birb.base.rows,
+		"w": Birb.scale * Birb.base.cols
 	},
 	"view": {
-		"w": 500,
+		"w": 700,
 		"h": 500
 	}
 };
+Birb.tileList = [];
 // Birb.total = 2;
 Birb.birds = [];
 Birb.soundsDict = [

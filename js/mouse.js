@@ -92,8 +92,11 @@ MouseFollow.prototype.handleMouseMove = function(e){
 
 	var maxXDiff = Birb.dim.map.w - Birb.dim.view.w;
 	var maxYDiff = Birb.dim.map.h - Birb.dim.view.h;
-	this.netPanning.x = Math.max(Math.min(this.netPanning.x, 0), -maxYDiff);
-	this.netPanning.y = Math.max(Math.min(this.netPanning.y, 0), -maxXDiff);
+	// console.log(maxXDiff+", "+maxYDiff);
+	// console.log(this.netPanning)
+	this.netPanning.x = Math.max(Math.min(this.netPanning.x, 0), -maxXDiff);
+	this.netPanning.y = Math.max(Math.min(this.netPanning.y, 0), -maxYDiff);
+	// console.log(this.netPanning);
 
 	return this.netPanning;	
 }
