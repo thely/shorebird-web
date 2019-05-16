@@ -30,6 +30,9 @@ IslandMap.prototype.drawHabitats = function(panning) {
 	for (var i = 0; i < this.pixelList.length; i++) {
 		var hab = this.pixelList[i];
 
+		// var xBare = (Math.floor(i / Birb.base.rows) * this.scaling.x);
+		// var yBare = ((i % Birb.base.rows) * this.scaling.y);
+
 		var start = {
 			"x": (Math.floor(i / Birb.base.rows) * this.scaling.x) + panning.x,
 			"y": ((i % Birb.base.rows) * this.scaling.y) + panning.y,
@@ -43,11 +46,17 @@ IslandMap.prototype.drawHabitats = function(panning) {
 			var color = this.colorList[hab];
 			this.ctx.fillStyle = color;
 			this.ctx.fillRect(start.x, start.y, size.w, size.h);
-			if (Birb.tileList.includes(i) || i == 0 || i == 10) {
+			
+			if (hab == 17) {
+				// console.log(start.x);
 				// console.log(i+" is in it!");
 				this.ctx.strokeStyle = "#FF0000";
-				this.ctx.strokeRect(start.x, start.y-Birb.scale, size.w, size.h);
-				//uncomfortable hack: -Birb.scale
+				this.ctx.strokeRect(start.x, start.y, size.w, size.h);
+				//uncomfortable hack: start.y-Birb.scale
+			}
+			if (Birb.tileList.includes(i)) {
+				this.ctx.strokeStyle = "#FFFF00";
+				this.ctx.strokeRect(start.x, start.y, size.w, size.h);
 			}
 		}
 	}

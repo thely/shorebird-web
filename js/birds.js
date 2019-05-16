@@ -33,13 +33,17 @@ BirdMaker.prototype.makeBirds = function(today, habitats) {
 				// var b = this.bird_data[i];
 				// console.log(today[i] + ": "+b.name);
 				var tile = __pickHabitat(this.bird_data[i], habitats);
-				// console.log(b.name+" in "+hab+" at "+tile);
-				// console.log(tile);
-
-				birds[bCount] = this.makeBird(this.bird_data[i], tile, center, color);
+				birds[bCount] = this.makeBird(this.bird_data[i], tile[0], center, color);
+				
 				birds[bCount].species = i;
-				birds[bCount].tile = tile;
-				Birb.tileList.push(tile)
+				birds[bCount].tile = tile[0];
+				birds[bCount].hab = tile[1];
+				var bird = birds[bCount];
+				// console.log("I'm "+bird.name+" on tile "+bird.tile+" which should be type "+bird.hab);
+				// console.log(tile);
+				
+				// console.log(birds)
+				Birb.tileList.push(tile[0]);
 				// console.log(birds[bCount].fixedPos);
 				bCount++;
 			}
@@ -54,12 +58,15 @@ BirdMaker.prototype.makeBirds = function(today, habitats) {
 }
 
 function __pickHabitat(bird, habitats) {
+	var ret = [];
 	var hab = random.pick(bird.land_preference);
 	while (!(hab in habitats)) {
 		hab = random.pick(bird.land_preference);
 	}
 	var tile = random.pick(habitats[hab]);
-	return tile;
+	ret[0] = tile - 1;
+	ret[1] = hab;
+	return ret;
 }
 
 BirdMaker.prototype.makeBird = function(info, tile, center, color) {
@@ -68,7 +75,7 @@ BirdMaker.prototype.makeBird = function(info, tile, center, color) {
 
 	var start = {
 		x: (Math.floor(tile / Birb.base.rows) * Birb.scale),
-		y: (((tile-1) % Birb.base.rows) * Birb.scale)
+		y: (((tile) % Birb.base.rows) * Birb.scale)
 	};
 	// tile-1: uncomfortable hack
 
