@@ -2,11 +2,12 @@
 // Generates and updates bird data off of defaults from globals.js, and eventually
 // from the JSON bird data.
 
-function BirdMaker(data, width, height, mapW, mapH) {
-	this.w = width;
-	this.h = height;
-	this.mapW = mapW;
-	this.mapH = mapH;
+function BirdMaker(data, dim) {
+	// this.w = width;
+	// this.h = height;
+	// this.mapW = mapW;
+	// this.mapH = mapH;
+	this.dim = dim
 	this.birds = this.makeBirds(data);
 }
 
@@ -16,8 +17,8 @@ BirdMaker.prototype.getBirds = function() {
 
 BirdMaker.prototype.makeBirds = function(data) {
 	// var data = this.data;
-	var width = this.w;
-	var height = this.h;
+	var width = this.dim.map.w;
+	var height = this.dim.map.h;
 	var birds = [];
 	var center = {
 		x: width / 2,
@@ -67,8 +68,8 @@ BirdMaker.prototype.updateBirdPlaces = function(panning) {
 		var bird = this.birds[i];
 		bird.pos.x = bird.fixedPos.x + panning.x;
 		bird.pos.y = bird.fixedPos.y + panning.y;
-		bird.visible.now = bird.visible.then;
-		bird.visible.now = checkIsVisible(bird.pos.x, bird.pos.y, this.mapW, this.mapH);
+		bird.visible.then = bird.visible.now;
+		bird.visible.now = checkIsVisible(bird.pos.x, bird.pos.y, this.dim.map.w, this.dim.map.h);
 
 		bird.azi = calcAngle(this.center, bird.pos);
 		bird.dist = calcDistance(this.center, bird.pos);

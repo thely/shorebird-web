@@ -1,10 +1,19 @@
 var Birb = [];
 
 // Some defaults
-Birb.windowWidth = 500;
-Birb.windowHeight = 500;
-Birb.mapWidth = 700;
-Birb.mapHeight = 700;
+
+// mapDim is the dimensions of the full (partially hidden) map
+// viewDim is the dimensions of the viewport (visible map)
+Birb.dim = {
+	"map": {
+		"w": 8 * 94,
+		"h": 8 * 82
+	},
+	"view": {
+		"w": 500,
+		"h": 500
+	}
+};
 // Birb.total = 2;
 Birb.birds = [];
 Birb.soundsDict = [

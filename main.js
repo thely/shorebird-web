@@ -59,7 +59,7 @@ $(function() {
 	Birb.maker = new BirdMaker(Birb.initialBirdData, Birb.dim);
 	Birb.birds = Birb.maker.getBirds();
 
-	Birb.map = new ShoreMap("mapZone", Birb.dim);
+	Birb.map = new ShoreMap("mapZone", Birb.dim, cobb_data);
 	Birb.map.drawFullMap(Birb.birds);
 
 	Birb.mouse = new MouseFollow(Birb.map.reOffset());
