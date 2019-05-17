@@ -70,12 +70,3 @@ ShoreMap.prototype.getLargerMap = function(panning) {
 	
 	this.context.fillRect(start.x, start.y, this.dim.map.w, this.dim.map.h);
 }
-
-
-//   for(var x=-50;x<50;x++){ 
-//   	ctx.fillText(x,x*20+netPanningX,ch/2);
-//   }
-  
-//   for(var y=-50;y<50;y++){ 
-//   	ctx.fillText(y,cw/2,y*20+netPanningY);
-//   }

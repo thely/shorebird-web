@@ -5,7 +5,6 @@
 
 function AudioPlayer(today, birdData) {
 	this.context = audioContextCheck();
-	// this.birds = birds;
 	this.birdNodes = [];
 	this.sounds = __getSoundFilenames(today, birdData);
 
@@ -20,7 +19,6 @@ function __getSoundFilenames(today, birdData) {
 	for (var i = 0; i < today.length; i++) {
 		if (today[i] > 0) {
 			var filename = Birb.homeFolder + "audio/"+birdData[i].name+".wav";
-			// console.log(filename);
 			fList[i] = filename;
 		}
 		else {
@@ -34,10 +32,8 @@ AudioPlayer.prototype.playBirds = function(birds) {
 	console.log("Trying to play");
 	var hrtf = getHRTF(this.context);
 	var list = this.bufferLoader.bufferList;
-	// console.log(this.birds);
 
 	for (var i = 0; i < birds.length; i++) {
-		// console.log(birds[i]);
 		var source = list[birds[i].species];
 		this.birdNodes[i] = new BirdNode(this.context, hrtf, source, birds[i].azi, birds[i].dist);
 		this.birdNodes[i].play(i * 0.5 + Math.random());
@@ -52,21 +48,17 @@ AudioPlayer.prototype.__outsideSound = function(bufferList) {
 }
 
 AudioPlayer.prototype.handleMouseMove = function(birds) {
-	// console.log("------visibility per frame-------");
 	for (var i = 0; i < this.birdNodes.length; i++) {
 		var b = birds[i];
-		// console.log(b.visible);
 
 		if (b.visible.now) {
 			this.birdNodes[i].pan(b.azi, b.dist);
 			
 			var x = Math.min(1 / (4 * Math.PI * Math.pow(b.dist, 2)), 0.5);
 			this.birdNodes[i].gain(x, this.context);
-			// this.birdNodes[i].GainNode.gain.exponentialRampToValueAtTime(x, this.context.currentTime + 0.75);
 		}
 		else if (!b.visible.now && b.visible.then) {
 			this.birdNodes[i].gain(0.00001, this.context);
-			// this.birdNodes[i].GainNode.gain.exponentialRampToValueAtTime(0.0001, this.context.currentTime + 0.5);
 		}
 		else if (!b.visible.now && !b.visible.then) {
 			this.birdNodes[i].gain(0);
@@ -104,12 +96,11 @@ BirdNode.prototype.play = function(val) {
 }
 
 BirdNode.prototype.gain = function(val, ctx) {
-	// var old = this.GainNode.gain.value;
 	if (val != 0) { 
 		this.GainNode.gain.exponentialRampToValueAtTime(val, ctx.currentTime + 0.5);
 	}
 	else {
-		this.GainNode.gain.value = val;	
+		this.GainNode.gain.value = 0;	
 	}
 	// console.log("new gain val: "+val);
 }

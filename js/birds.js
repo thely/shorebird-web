@@ -101,19 +101,12 @@ BirdMaker.prototype.makeBird = function(info, tile, center, color) {
 }
 
 BirdMaker.prototype.updateBirdPlaces = function(panning) {
-	// console.log("-----------------------");
-	var adjCenter = {
-		x: this.center.x + panning.x,
-		y: this.center.y + panning.y
-	};
 	for (var i = 0; i < this.birds.length; i++) {
 		var bird = this.birds[i];
 		bird.pos.x = bird.fixedPos.x + panning.x;
 		bird.pos.y = bird.fixedPos.y + panning.y;
 		bird.visible.then = bird.visible.now;
 		bird.visible.now = checkIsVisible(bird.pos.x, bird.pos.y, this.dim.map.w, this.dim.map.h);
-		// bird.visible.now = __isTileVisible(bird.pos, {w:5,h:5}, this.dim.view);
-		// console.log(bird.visible.now);
 
 		bird.azi = calcAngle(bird.pos, this.center);
 		bird.dist = calcDistance(this.center, bird.pos);
