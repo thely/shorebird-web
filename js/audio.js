@@ -7,6 +7,9 @@ function AudioPlayer(today, birdData) {
 	this.context = audioContextCheck();
 	this.birdNodes = [];
 	this.sounds = __getSoundFilenames(today, birdData);
+	this.masterGain = this.context.createGain();
+	this.masterGain.gain.value = 0.5;
+	this.masterGain.connect(this.context.destination);
 
 	var sup = this;
 	this.bufferLoader = new BufferLoader(this.context, this.sounds, this.__outsideSound);
@@ -35,7 +38,7 @@ AudioPlayer.prototype.playBirds = function(birds) {
 
 	for (var i = 0; i < birds.length; i++) {
 		var source = list[birds[i].species];
-		this.birdNodes[i] = new BirdNode(this.context, hrtf, source, birds[i].azi, birds[i].dist);
+		this.birdNodes[i] = new BirdNode(this.context, this.masterGain, hrtf, source, birds[i].azi, birds[i].dist);
 		this.birdNodes[i].play(i * 0.5 + Math.random());
 	}
 	// return birds;
@@ -69,7 +72,7 @@ AudioPlayer.prototype.handleMouseMove = function(birds) {
 
 // A collection of three nodes: a source node, a binaural FIR panner node,
 // and a gain node.
-function BirdNode(ctx, hrtf, source, azi, dist) {
+function BirdNode(ctx, master, hrtf, source, azi, dist) {
 	this.SoundSource = ctx.createBufferSource(); 
 	this.SoundSource.buffer = source;
 	this.SoundSource.loop = true;
@@ -86,13 +89,22 @@ function BirdNode(ctx, hrtf, source, azi, dist) {
 
 	this.SoundSource.connect(this.GainNode);
 	this.GainNode.connect(this.BinPan.input);
-	this.BinPan.connect(ctx.destination);
+	this.BinPan.connect(master);
 
 	this.BinPan.setPosition(azi, 0, dist);
 }
 
 BirdNode.prototype.play = function(val) {
 	this.SoundSource.start(val);
+}
+
+AudioPlayer.prototype.master = function(val) {
+	if (val != 0) { 
+		this.masterGain.gain.exponentialRampToValueAtTime(val, this.context.currentTime + 0.5);
+	}
+	else {
+		this.masterGain.gain.value = 0;	
+	}
 }
 
 BirdNode.prototype.gain = function(val, ctx) {

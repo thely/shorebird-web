@@ -56,6 +56,11 @@ $(function() {
 		
 	});
 
+	$(".masterGainKnob").on("input", function(e) {
+		// console.log(e.target.value);
+		Birb.audioPlayer.master(e.target.value);
+	});
+
 	var today = cobb_data["birds_and_days"][0]["count"];
 	var habitats = cobb_data["habitats_in_pixels"];
 	// var bird_species_data
