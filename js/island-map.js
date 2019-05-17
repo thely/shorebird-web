@@ -1,9 +1,5 @@
 
 function IslandMap(ctx, dim, data) {
-	// this.orig = {
-	// 	"row": 94,
-	// 	"col": 82
-	// }
 	this.dim = dim;
 	this.name = data["name"];
 	this.pixelList = data["pixel_cover_list"];
@@ -13,14 +9,6 @@ function IslandMap(ctx, dim, data) {
 	// this.scaling = this.scaleFactor(dim.map);
 	this.scaling = {x:Birb.scale, y:Birb.scale};
 }
-
-// IslandMap.prototype.scaleFactor = function(dim) {
-// 	var scale = { x: 0, y: 0 };
-// 	scale.x = Math.floor(dim.w / this.orig.row);
-// 	scale.y = Math.floor(dim.h / this.orig.col);
-
-// 	return scale;
-// }
 
 IslandMap.prototype.drawHabitats = function(panning) {
 	if (!panning) {
@@ -42,22 +30,23 @@ IslandMap.prototype.drawHabitats = function(panning) {
 			"h": this.scaling.y
 		}
 
-		if (__isTileVisible(start, size, this.dim.map)) {
+		if (__isTileVisible(start, size, this.dim.view)) {
 			var color = this.colorList[hab];
 			this.ctx.fillStyle = color;
 			this.ctx.fillRect(start.x, start.y, size.w, size.h);
 			
-			if (hab == 17) {
-				// console.log(start.x);
-				// console.log(i+" is in it!");
-				this.ctx.strokeStyle = "#FF0000";
-				this.ctx.strokeRect(start.x, start.y, size.w, size.h);
-				//uncomfortable hack: start.y-Birb.scale
-			}
-			if (Birb.tileList.includes(i)) {
-				this.ctx.strokeStyle = "#FFFF00";
-				this.ctx.strokeRect(start.x, start.y, size.w, size.h);
-			}
+			// ----- tile border visualization when desired
+			// if (hab == 17) {
+			// 	// console.log(start.x);
+			// 	// console.log(i+" is in it!");
+			// 	this.ctx.strokeStyle = "#FF0000";
+			// 	this.ctx.strokeRect(start.x, start.y, size.w, size.h);
+			// 	//uncomfortable hack: start.y-Birb.scale
+			// }
+			// if (Birb.tileList.includes(i)) {
+			// 	this.ctx.strokeStyle = "#FFFF00";
+			// 	this.ctx.strokeRect(start.x, start.y, size.w, size.h);
+			// }
 		}
 	}
 }

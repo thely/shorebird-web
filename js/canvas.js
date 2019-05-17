@@ -43,7 +43,8 @@ ShoreMap.prototype.baseMap = function(panning) {
 ShoreMap.prototype.drawBirds = function(birds) {
 	for (var i = 0; i < birds.length; i++) {
 		if (birds[i].visible.now) {
-			var colortxt = 'rgb('+birds[i].color.r+','+birds[i].color.g+','+birds[i].color.b+')';
+			// var colortxt = 'rgb('+birds[i].color.r+','+birds[i].color.g+','+birds[i].color.b+')';
+			var colortxt = "#FFFFFF";
 			this.context.fillStyle = colortxt;
 			this.context.fillRect(birds[i].pos.x, birds[i].pos.y, 5, 5);
 		}

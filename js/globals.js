@@ -5,11 +5,14 @@ var Birb = [];
 // mapDim is the dimensions of the full (partially hidden) map
 // viewDim is the dimensions of the viewport (visible map)
 
-Birb.scale = 15;
+Birb.scale = 25;
 Birb.base = {
 	rows: 94,
 	cols: 82
 };
+// 33% chance of seeing relevant birds
+Birb.homeFolder = "http://localhost:8888/shorbord/";
+Birb.popScale = 1;
 Birb.dim = {
 	"map": {
 		"h": Birb.scale * Birb.base.rows,

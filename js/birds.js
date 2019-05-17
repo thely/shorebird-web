@@ -15,12 +15,13 @@ BirdMaker.prototype.getBirds = function() {
 BirdMaker.prototype.makeBirds = function(today, habitats) {
 	var birds = [];
 	var center = {
-		x: this.dim.map.w / 2,
-		y: this.dim.map.h / 2
+		x: this.dim.view.w / 2,
+		y: this.dim.view.h / 2
 	};
 
 	this.center = center;
 
+	// cycle through list of birds/day
 	var bCount = 0;
 	for (var i = 0; i < today.length; i++) {
 		if (today[i] > 0) {
@@ -29,34 +30,30 @@ BirdMaker.prototype.makeBirds = function(today, habitats) {
 				g: Math.random() * 255,
 				b: Math.random() * 255
 			};
-			for (var j = 0; j < today[i]; j++) {
-				// var b = this.bird_data[i];
-				// console.log(today[i] + ": "+b.name);
+
+			// place # birds of species i
+			var pop = Math.ceil(today[i] / Birb.popScale);
+			for (var j = 0; j < pop; j++) {
 				var tile = __pickHabitat(this.bird_data[i], habitats);
 				birds[bCount] = this.makeBird(this.bird_data[i], tile[0], center, color);
 				
+				// adding tile/habitat information to this bird
 				birds[bCount].species = i;
+				birds[bCount].id = bCount;
 				birds[bCount].tile = tile[0];
 				birds[bCount].hab = tile[1];
-				var bird = birds[bCount];
-				// console.log("I'm "+bird.name+" on tile "+bird.tile+" which should be type "+bird.hab);
-				// console.log(tile);
 				
-				// console.log(birds)
+				// add to the list of lived-in tiles for collision detection/etc
 				Birb.tileList.push(tile[0]);
-				// console.log(birds[bCount].fixedPos);
 				bCount++;
 			}
 		}
 	}
-
-	// console.log(birds);
-	// console.log(birds[0].pos);
-
-	// this.birds = birds;
 	return birds;
 }
 
+// pick habitat for this bird from its preferences, then
+// pick tile belonging to this habitat
 function __pickHabitat(bird, habitats) {
 	var ret = [];
 	var hab = random.pick(bird.land_preference);
@@ -73,12 +70,13 @@ BirdMaker.prototype.makeBird = function(info, tile, center, color) {
 	var bird = {};
 	bird.name = info.name;
 
+	// find the top-left start pos of this tile
 	var start = {
 		x: (Math.floor(tile / Birb.base.rows) * Birb.scale),
 		y: (((tile) % Birb.base.rows) * Birb.scale)
 	};
-	// tile-1: uncomfortable hack
 
+	// generate a bird position inside the tile
 	bird.pos = {
 		x: random.integer(start.x, start.x + Birb.scale),
 		y: random.integer(start.y, start.y + Birb.scale)
@@ -89,10 +87,11 @@ BirdMaker.prototype.makeBird = function(info, tile, center, color) {
 	};
 
 	bird.visible = {
-		then: true,
-		now: true
+		then: checkIsVisible(bird.pos.x, bird.pos.y, this.dim.map.w, this.dim.map.h),
+		now: checkIsVisible(bird.pos.x, bird.pos.y, this.dim.map.w, this.dim.map.h)
 	};
 
+	// get the azimuth/distance for binaural panning and gain
 	bird.azi = calcAngle(center, bird.pos);
 	bird.dist = calcDistance(center, bird.pos);
 
@@ -101,74 +100,26 @@ BirdMaker.prototype.makeBird = function(info, tile, center, color) {
 	return bird;
 }
 
-// BirdMaker.prototype.makeBirds = function(today, habitats) {
-// 	// var data = this.data;
-// 	var width = this.dim.map.w;
-// 	var height = this.dim.map.h;
-// 	var birds = [];
-// 	var center = {
-// 		x: width / 2,
-// 		y: height / 2
-// 	};
-// 	this.center = center;
-
-// 	for (var i = 0; i < data.length; i++) {
-// 		birds[i] = this.makeBird(width, height, center, data[i]);
-// 	}
-
-// 	this.birds = birds;
-
-// 	return birds;
-// }
-
-// BirdMaker.prototype.makeBird = function(w, h, center, s) {
-// 	var bird = [];
-// 	bird.pos = {
-// 		x: Math.random() * w,
-// 		y: Math.random() * h,
-// 	};
-// 	bird.fixedPos = {
-// 		x: bird.pos.x,
-// 		y: bird.pos.y
-// 	};
-// 	bird.visible = {
-// 		then: true,
-// 		now: true
-// 	};
-
-// 	bird.azi = calcAngle(center, bird.pos);
-// 	bird.dist = calcDistance(center, bird.pos);
-
-// 	bird.color = {
-// 		r: Math.random() * 255,
-// 		g: Math.random() * 255,
-// 		b: Math.random() * 255
-// 	};
-
-// 	bird.source = s;
-// 	return bird;
-// }
-
 BirdMaker.prototype.updateBirdPlaces = function(panning) {
 	// console.log("-----------------------");
+	var adjCenter = {
+		x: this.center.x + panning.x,
+		y: this.center.y + panning.y
+	};
 	for (var i = 0; i < this.birds.length; i++) {
 		var bird = this.birds[i];
 		bird.pos.x = bird.fixedPos.x + panning.x;
 		bird.pos.y = bird.fixedPos.y + panning.y;
 		bird.visible.then = bird.visible.now;
-		// bird.visible.now = checkIsVisible(bird.pos.x, bird.pos.y, this.dim.map.w, this.dim.map.h);
-		bird.visible.now = __isTileVisible(bird.pos, {w:5,h:5}, this.dim.map);
+		bird.visible.now = checkIsVisible(bird.pos.x, bird.pos.y, this.dim.map.w, this.dim.map.h);
+		// bird.visible.now = __isTileVisible(bird.pos, {w:5,h:5}, this.dim.view);
 		// console.log(bird.visible.now);
 
-		bird.azi = calcAngle(this.center, bird.pos);
+		bird.azi = calcAngle(bird.pos, this.center);
 		bird.dist = calcDistance(this.center, bird.pos);
 
 		this.birds[i] = bird;
 	}
-	// console.log("---------------");
-	// console.log(panning);
-	// console.log(this.birds[0].fixedPos);
-	// console.log(this.birds[0].pos);
 }
 
 
@@ -207,6 +158,6 @@ function calcDistance(p1, p2) {
 	var b = p1.y - p2.y;
 	var c = Math.sqrt(a*a + b*b);
 
-	return c / 300;
+	return c / 200;
 }
 

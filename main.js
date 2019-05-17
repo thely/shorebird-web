@@ -68,7 +68,8 @@ $(function() {
 
 	Birb.mouse = new MouseFollow(Birb.map.reOffset());
 
-	Birb.audioPlayer = new AudioPlayer(Birb.birds, Birb.soundsDict);
+	// Birb.audioPlayer = new AudioPlayer(Birb.birds, Birb.soundsDict);
+	Birb.audioPlayer = new AudioPlayer(today, bird_species_data);
 
 });
 
