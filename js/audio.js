@@ -21,7 +21,7 @@ function __getSoundFilenames(today, birdData) {
 	var fList = [];
 	for (var i = 0; i < today.length; i++) {
 		if (today[i] > 0) {
-			var filename = Birb.homeFolder + "audio/"+birdData[i].name+".wav";
+			var filename = B_FILEFOLDER + "audio/"+birdData[i].name+".ogg";
 			fList[i] = filename;
 		}
 		else {
@@ -39,9 +39,18 @@ AudioPlayer.prototype.playBirds = function(birds) {
 	for (var i = 0; i < birds.length; i++) {
 		var source = list[birds[i].species];
 		this.birdNodes[i] = new BirdNode(this.context, this.masterGain, hrtf, source, birds[i].azi, birds[i].dist);
-		this.birdNodes[i].play(i * 0.5 + Math.random());
+		this.birdNodes[i].play();
 	}
 	// return birds;
+}
+
+AudioPlayer.prototype.master = function(val) {
+	if (val != 0) { 
+		this.masterGain.gain.exponentialRampToValueAtTime(val, this.context.currentTime + 0.5);
+	}
+	else {
+		this.masterGain.gain.value = 0;	
+	}
 }
 
 AudioPlayer.prototype.__outsideSound = function(bufferList) {
@@ -54,25 +63,31 @@ AudioPlayer.prototype.handleMouseMove = function(birds) {
 	for (var i = 0; i < this.birdNodes.length; i++) {
 		var b = birds[i];
 
+		// pan it around if visible
 		if (b.visible.now) {
 			this.birdNodes[i].pan(b.azi, b.dist);
 			
-			var x = Math.min(1 / (4 * Math.PI * Math.pow(b.dist, 2)), 0.5);
+			var x = __gainFromDistance(b.dist, 0.4);
+			// Math.min(1 / (4 * Math.PI * Math.pow(b.dist, 2)), 0.4);
 			this.birdNodes[i].gain(x, this.context);
 		}
+		// bird just left the viewport
 		else if (!b.visible.now && b.visible.then) {
 			this.birdNodes[i].gain(0.00001, this.context);
 		}
+
+		// bird has been gone from the viewport, maybe fading out
 		else if (!b.visible.now && !b.visible.then) {
-			this.birdNodes[i].gain(0);
+			if (this.birdNodes[i].GainNode.gain.value <= 0.00001)
+				this.birdNodes[i].gain(0);
 		}
-		// console.log(this.birdNodes[i].GainNode.gain.value);
 	}
 }
 
 // A collection of three nodes: a source node, a binaural FIR panner node,
 // and a gain node.
 function BirdNode(ctx, master, hrtf, source, azi, dist) {
+	this.active = true;
 	this.SoundSource = ctx.createBufferSource(); 
 	this.SoundSource.buffer = source;
 	this.SoundSource.loop = true;
@@ -84,8 +99,7 @@ function BirdNode(ctx, master, hrtf, source, azi, dist) {
 	this.BinPan.setCrossfadeDuration(200);
 
 	this.GainNode = ctx.createGain();
-	var x = Math.min(1 / (4 * Math.PI * Math.pow(dist, 2)), 0.5);
-	this.GainNode.gain.value = x;
+	this.GainNode.gain.value = __gainFromDistance(dist, 0.4);
 
 	this.SoundSource.connect(this.GainNode);
 	this.GainNode.connect(this.BinPan.input);
@@ -94,27 +108,30 @@ function BirdNode(ctx, master, hrtf, source, azi, dist) {
 	this.BinPan.setPosition(azi, 0, dist);
 }
 
-BirdNode.prototype.play = function(val) {
-	this.SoundSource.start(val);
+function __gainFromDistance(dist, max) {
+	// var x = Math.min(1 / (0.5 * Math.PI * Math.pow(dist, 2) + 1), max);
+	var x = Math.min(1 / (0.5 * dist), max);
+	return x;
 }
 
-AudioPlayer.prototype.master = function(val) {
-	if (val != 0) { 
-		this.masterGain.gain.exponentialRampToValueAtTime(val, this.context.currentTime + 0.5);
-	}
-	else {
-		this.masterGain.gain.value = 0;	
-	}
+BirdNode.prototype.play = function() {
+	var dur = this.SoundSource.buffer.duration;
+	var fileOffset = random(0, dur);
+	var startOffset = random(0, 2);
+	this.SoundSource.start(startOffset, fileOffset);
+	// this.SoundSource.start(val);
+	// i * 0.5 + Math.random()
 }
 
 BirdNode.prototype.gain = function(val, ctx) {
 	if (val != 0) { 
-		this.GainNode.gain.exponentialRampToValueAtTime(val, ctx.currentTime + 0.5);
+		this.GainNode.gain.linearRampToValueAtTime(val, ctx.currentTime + 0.5);
+		this.active = true;
 	}
 	else {
-		this.GainNode.gain.value = 0;	
+		this.GainNode.gain.value = 0;
+		this.active = false;
 	}
-	// console.log("new gain val: "+val);
 }
 
 BirdNode.prototype.pan = function(azi, dist) {

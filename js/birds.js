@@ -5,46 +5,47 @@
 function BirdMaker(bird_data, today, habitats, dim) {
 	this.dim = dim
 	this.bird_data = bird_data
+	this.visibleBirds = [];
 	this.birds = this.makeBirds(today, habitats);
+	this.center = p5.Vector.mult(this.dim.view, 0.5);
 }
 
+// only returns currently visible birds!!
 BirdMaker.prototype.getBirds = function() {
 	return this.birds;
 }
 
 BirdMaker.prototype.makeBirds = function(today, habitats) {
 	var birds = [];
-	var center = {
-		x: this.dim.view.w / 2,
-		y: this.dim.view.h / 2
-	};
+	var center = this.center;
 
-	this.center = center;
+	this.visibleBirds = [];
 
 	// cycle through list of birds/day
 	var bCount = 0;
 	for (var i = 0; i < today.length; i++) {
 		if (today[i] > 0) {
+			// one color per species
 			var color = {
 				r: Math.random() * 255,
 				g: Math.random() * 255,
 				b: Math.random() * 255
 			};
 
-			// place # birds of species i
-			var pop = Math.ceil(today[i] / Birb.popScale);
+			// // place # birds of species i
+			var pop = Math.ceil(today[i] / B_POPSCALE);
+
 			for (var j = 0; j < pop; j++) {
-				var tile = __pickHabitat(this.bird_data[i], habitats);
-				birds[bCount] = this.makeBird(this.bird_data[i], tile[0], center, color);
-				
-				// adding tile/habitat information to this bird
-				birds[bCount].species = i;
-				birds[bCount].id = bCount;
-				birds[bCount].tile = tile[0];
-				birds[bCount].hab = tile[1];
+				var b = new Bird(this.bird_data[i], habitats, color);
+				b.species = i;
+				b.id = bCount;
 				
 				// add to the list of lived-in tiles for collision detection/etc
-				Birb.tileList.push(tile[0]);
+				B_USEDTILES.push(b.tile);
+				if (b.visible.now) {
+					this.visibleBirds.push(b);
+				}
+				birds[bCount] = b;
 				bCount++;
 			}
 		}
@@ -52,105 +53,103 @@ BirdMaker.prototype.makeBirds = function(today, habitats) {
 	return birds;
 }
 
-// pick habitat for this bird from its preferences, then
-// pick tile belonging to this habitat
-function __pickHabitat(bird, habitats) {
-	var ret = [];
-	var hab = random.pick(bird.land_preference);
-	while (!(hab in habitats)) {
-		hab = random.pick(bird.land_preference);
-	}
-	var tile = random.pick(habitats[hab]);
-	ret[0] = tile - 1;
-	ret[1] = hab;
-	return ret;
-}
-
-BirdMaker.prototype.makeBird = function(info, tile, center, color) {
-	var bird = {};
-	bird.name = info.name;
-
-	// find the top-left start pos of this tile
-	var start = {
-		x: (Math.floor(tile / Birb.base.rows) * Birb.scale),
-		y: (((tile) % Birb.base.rows) * Birb.scale)
-	};
-
-	// generate a bird position inside the tile
-	bird.pos = {
-		x: random.integer(start.x, start.x + Birb.scale),
-		y: random.integer(start.y, start.y + Birb.scale)
-	};
-	bird.fixedPos = {
-		x: bird.pos.x,
-		y: bird.pos.y
-	};
-
-	bird.visible = {
-		then: checkIsVisible(bird.pos.x, bird.pos.y, this.dim.map.w, this.dim.map.h),
-		now: checkIsVisible(bird.pos.x, bird.pos.y, this.dim.map.w, this.dim.map.h)
-	};
-
-	// get the azimuth/distance for binaural panning and gain
-	bird.azi = calcAngle(center, bird.pos);
-	bird.dist = calcDistance(center, bird.pos);
-
-	bird.color = color;
-
-	return bird;
-}
-
 BirdMaker.prototype.updateBirdPlaces = function(panning) {
+	this.visibleBirds = [];
+
 	for (var i = 0; i < this.birds.length; i++) {
 		var bird = this.birds[i];
-		bird.pos.x = bird.fixedPos.x + panning.x;
-		bird.pos.y = bird.fixedPos.y + panning.y;
+		bird.pos = p5.Vector.add(bird.fixedPos, panning);
 		bird.visible.then = bird.visible.now;
-		bird.visible.now = checkIsVisible(bird.pos.x, bird.pos.y, this.dim.map.w, this.dim.map.h);
+		bird.visible.now = checkIsVisible(bird.pos, this.dim.view);
+		if (bird.visible.now) {
+			this.visibleBirds.push(bird);
+		}
 
-		bird.azi = calcAngle(bird.pos, this.center);
-		bird.dist = calcDistance(this.center, bird.pos);
+		push();
+		translate(B_CENTER.x, B_CENTER.y);
+		bird.azi = calcAngle(bird.pos);
+		bird.dist = calcDistance(bird.pos);
+		pop();
 
 		this.birds[i] = bird;
 	}
 }
 
+// pick habitat for this bird from its preferences, then
+// pick tile belonging to this habitat
+
+function Bird(info, habitats, color) {
+	this.name = info.name;
+	this.pickHabitat(info.land_preference, habitats);
+
+	// find the top-left start pos of this tile
+	var start = createVector(
+		parseInt(Math.floor(this.tile / B_ROWS) * B_MAPSCALE),
+		parseInt(((this.tile) % B_ROWS) * B_MAPSCALE)
+	);
+	// generate a bird position inside the tile
+	this.pos = start.copy().add(B_MAPSCALE);
+	this.fixedPos = this.pos.copy();
+
+	this.visible = {
+		then: checkIsVisible(this.pos, dim.view),
+		now: checkIsVisible(this.pos, dim.view)
+	};
+
+	// get the azimuth/distance for binaural panning and gain
+	push();
+	translate(B_CENTER.x, B_CENTER.y);
+	this.azi = calcAngle(this.pos);
+	this.dist = calcDistance(this.pos);
+	pop();
+
+	this.color = color;
+}
+
+Bird.prototype.pickHabitat = function(prefs, habitats) {
+	var ret = [];
+	var hab = random(prefs);
+	while (!(hab in habitats)) {
+		hab = random(prefs);
+	}
+	var tile = random(habitats[hab]);
+	this.tile = tile - 1;
+	this.hab = hab;
+	
+	return tile;
+}
 
 /// ------------ Helpers ----------------------------------
 
 
-function checkIsVisible(x, y, w, h) {
-	if (x < 0 || y < 0) {
+
+function checkIsVisible(pos1, pos2) {
+	if (pos1.x < 0 || pos1.y < 0) {
 		return false;
 	}
-	if (x >= w || y >= h) {
+	if (pos1.x >= pos2.x || pos1.y >= pos2.y) {
 		return false;
 	}
 	return true;
 }
 
-function calcAngle(p1, p2) {
-	var angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
-	var newAngle = 0;
-	if (angle >= 0) {
-		if (angle + 90 >= 180) {
-			newAngle = -90 + ((180 - angle) * -1);
-		}
-		else {
-			newAngle = angle + 90;
-		}
-	}
-	else if (angle < 0) {
-		newAngle = angle + 90;
-	}
-	return newAngle;
+//p1 is the centerpoint in all cases
+function calcAngle(p2) {
+	// push();
+	// translate(B_CENTER.x, B_CENTER.y);
+	var diff = p5.Vector.sub(B_CENTER, p2).rotate(HALF_PI);
+	var azi = degrees(diff.heading()).toFixed(2);
+	// pop();
+	return azi; 
 }
 
-function calcDistance(p1, p2) {
-	var a = p1.x - p2.x;
-	var b = p1.y - p2.y;
-	var c = Math.sqrt(a*a + b*b);
+function calcDistance(p2) {
+	// push();
+	// translate(B_CENTER.x, B_CENTER.y);
+	var diff = p5.Vector.sub(B_CENTER, p2);
+	var c = diff.mag().toFixed(2);
+	// pop();
 
-	return c / 200;
+	return c / 300;
 }
 
