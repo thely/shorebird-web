@@ -15,11 +15,16 @@ BirdMaker.prototype.getBirds = function() {
 	return this.birds;
 }
 
+BirdMaker.prototype.getVisibleBirds = function() {
+	return this.visibleBirds;
+}
+
 BirdMaker.prototype.makeBirds = function(today, habitats) {
 	var birds = [];
 	var center = this.center;
 
 	this.visibleBirds = [];
+	var totalBirds = 0;
 
 	// cycle through list of birds/day
 	var bCount = 0;
@@ -33,7 +38,9 @@ BirdMaker.prototype.makeBirds = function(today, habitats) {
 			};
 
 			// // place # birds of species i
-			var pop = Math.ceil(today[i] / B_POPSCALE);
+			var pop = Math.ceil(today[i] * B_POPSCALE);
+			console.log("the pop: "+pop);
+			totalBirds += pop;
 
 			for (var j = 0; j < pop; j++) {
 				var b = new Bird(this.bird_data[i], habitats, color);
@@ -50,6 +57,7 @@ BirdMaker.prototype.makeBirds = function(today, habitats) {
 			}
 		}
 	}
+	console.log(totalBirds);
 	return birds;
 }
 
@@ -73,6 +81,8 @@ BirdMaker.prototype.updateBirdPlaces = function(panning) {
 
 		this.birds[i] = bird;
 	}
+
+	return this.visibleBirds;
 }
 
 // pick habitat for this bird from its preferences, then
@@ -88,13 +98,18 @@ function Bird(info, habitats, color) {
 		parseInt(((this.tile) % B_ROWS) * B_MAPSCALE)
 	);
 	// generate a bird position inside the tile
-	this.pos = start.copy().add(B_MAPSCALE);
+	this.pos = createVector(
+		random(start.x, start.x + B_MAPSCALE),
+		random(start.y, start.y + B_MAPSCALE)
+	);
 	this.fixedPos = this.pos.copy();
 
 	this.visible = {
 		then: checkIsVisible(this.pos, dim.view),
 		now: checkIsVisible(this.pos, dim.view)
 	};
+
+	this.hasAudioNode = false;
 
 	// get the azimuth/distance for binaural panning and gain
 	push();
@@ -140,7 +155,7 @@ function calcAngle(p2) {
 	var diff = p5.Vector.sub(B_CENTER, p2).rotate(HALF_PI);
 	var azi = degrees(diff.heading()).toFixed(2);
 	// pop();
-	return azi; 
+	return -azi; 
 }
 
 function calcDistance(p2) {

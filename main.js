@@ -20,11 +20,12 @@ $(function() {
 
 B_ROWS = 94;
 B_COLS = 82;
-B_MAPSCALE = 25;
-B_POPSCALE = 1;
+B_MAPSCALE = 50;
+B_POPSCALE = 0.1;
 B_USEDTILES = [];
 B_CENTER = 0;
 B_FILEFOLDER = "http://localhost:8888/shorbord/";
+B_MAXNODES = 30;
 
 birdSounds = [];
 soundStarted = false;
@@ -38,7 +39,7 @@ function mouseDragged (){
 	panning.y = constrain(panning.y, -maxDiff.y, 0);
 
 	b_maker.updateBirdPlaces(panning);
-	b_birds = b_maker.getBirds();
+	b_birds = b_maker.getVisibleBirds();
 	b_player.handleMouseMove(b_birds);	
 
 	return false;
@@ -56,21 +57,6 @@ function mouseReleased() {
 	noLoop();
 }
 
-
-// function preload() {
-// 	soundFormats("mp3", "ogg");
-// 	for (var i = 0; i < bird_species_data.length; i++) {
-// 		if (cobb_data["birds_and_days"][0]["count"][i] > 0) {
-// 			birdSounds[i] = loadSound("audio/"+bird_species_data[i].name+".mp3", fileSuccess);
-// 			// console.log("loading "+i);
-// 		}
-// 	}
-// }
-
-// function fileSuccess() {
-// 	// console.log("loaded!");
-// }
-
 function setup() {
 	dim = {
 		map: createVector(B_COLS * B_MAPSCALE, B_ROWS * B_MAPSCALE),
@@ -84,12 +70,13 @@ function setup() {
 	var today = cobb_data["birds_and_days"][0]["count"];
 	var habitats = cobb_data["habitats_in_pixels"];
 	b_maker = new BirdMaker(bird_species_data, today, habitats, dim);
-	b_birds = b_maker.getBirds();
+	b_birds = b_maker.getVisibleBirds();
+	console.log(b_birds);
 
 	b_map = new ShoreMap(dim, cobb_data);
 	panning = createVector(0,0);
-	b_player = new AudioPlayer(today, bird_species_data);
-	// b_player.buildNodes(birdSounds, b_birds);
+	b_player = new AudioPlayer(today, bird_species_data, B_MAXNODES);
+	b_player.buildNodes(b_birds);
 	// b_player.positionSounds(b_birds);
 
 	frameRate(30);

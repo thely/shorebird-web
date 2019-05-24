@@ -3,9 +3,13 @@
 // and each node of sound is a BirdNode. BirdNodes and individual birds are
 // not necessarily one to one.
 
-function AudioPlayer(today, birdData) {
+
+function AudioPlayer(today, birdData, maxNodes) {
 	this.context = audioContextCheck();
 	this.birdNodes = [];
+	this.activeNodes = [];
+	this.inactiveNodes = [];
+	this.total = maxNodes;
 	this.sounds = __getSoundFilenames(today, birdData);
 	this.masterGain = this.context.createGain();
 	this.masterGain.gain.value = 0.5;
@@ -31,10 +35,25 @@ function __getSoundFilenames(today, birdData) {
 	return fList;
 }
 
+AudioPlayer.prototype.buildNodes = function(birds) {
+	var hrtf = getHRTF(this.context);
+	var list = this.bufferLoader.bufferList;
+	this.files = list;
+
+	for (var i = 0; i < this.total; i++) {
+		// var source = list[birds[i].species];
+		var source = list[i]; // so the source node doesn't get angry
+		this.inactiveNodes[i] = new BirdNode(this.context, this.masterGain, hrtf, source);
+		// this.birdNodes[i].play();
+	}
+	console.log(this.inactiveNodes);
+}
+
 AudioPlayer.prototype.playBirds = function(birds) {
 	console.log("Trying to play");
 	var hrtf = getHRTF(this.context);
 	var list = this.bufferLoader.bufferList;
+	this.files = list;
 
 	for (var i = 0; i < birds.length; i++) {
 		var source = list[birds[i].species];
@@ -59,29 +78,137 @@ AudioPlayer.prototype.__outsideSound = function(bufferList) {
 	console.log(this);
 }
 
-AudioPlayer.prototype.handleMouseMove = function(birds) {
-	for (var i = 0; i < this.birdNodes.length; i++) {
-		var b = birds[i];
+function __birdFromId(arr, birdId) {
+  return arr.filter(function(el) {
+      return el.id == birdId;
+  })
+}
 
-		// pan it around if visible
-		if (b.visible.now) {
-			this.birdNodes[i].pan(b.azi, b.dist);
-			
-			var x = __gainFromDistance(b.dist, 0.4);
-			// Math.min(1 / (4 * Math.PI * Math.pow(b.dist, 2)), 0.4);
-			this.birdNodes[i].gain(x, this.context);
-		}
-		// bird just left the viewport
-		else if (!b.visible.now && b.visible.then) {
-			this.birdNodes[i].gain(0.00001, this.context);
-		}
+/*
+for each node, check to see if it has an associated bird ID.
+check to see if a bird like that is in the visible birds.
+if yes:
+	adjust azi/dist gain if visible
+if no:
+	The bird's node_id and the node's bird_id are set to null.
+	source.stop()
+	move the node from active to inactive.
+*/
 
-		// bird has been gone from the viewport, maybe fading out
-		else if (!b.visible.now && !b.visible.then) {
-			if (this.birdNodes[i].GainNode.gain.value <= 0.00001)
-				this.birdNodes[i].gain(0);
+AudioPlayer.prototype.updateNodes = function(birds) {
+	shuffle(birds, true);
+	// console.log("INACTIVE AND ACTIVE");
+	console.log(this.inactiveNodes);
+	console.log(this.activeNodes);
+	// console.log("STARTING ACTIVE LOOP");
+	for (var i = this.activeNodes.length - 1; i >= 0; i--) {
+		// console.log("looping the active. our node: ");
+
+		// check if the bird we know is in the visible list
+		// console.log(this.activeNodes[i]);
+		var b = __birdFromId(birds, this.activeNodes[i].bird.id);
+		if (b.length > 0) {
+			// console.log("we have a bird");
+			this.moveVisibleNode(b[0], this.activeNodes[i]);
+		}
+		// our bird is gone
+		else {
+			// console.log("our bird is gone");
+			this.activeNodes[i].stop();
+			this.activeNodes[i].mode = "fadeout";
+			this.activeNodes[i].bird.hasAudioNode = false; // this should be illegal
+			this.activeNodes[i].bird = null;
+			var n = this.activeNodes.splice(i, 1);
+			this.inactiveNodes.push(n[0]);
 		}
 	}
+
+	// all our nodes are presently in use
+	if (this.inactiveNodes.length <= 0) {
+		console.log("all the inactive nodes are taken!");
+		return;
+	}
+
+	// adding new birds
+	// console.log("STARTING BIRD LOOP");
+	// console.log(birds);
+	for (var i = 0; i < birds.length; i++) {
+		// if we weren't visible last frame, we haven't been added yet
+		if (!birds[i].hasAudioNode && this.inactiveNodes.length > 0) {
+			console.log("our next bird: ");
+			console.log(birds[i]);
+			var n = this.inactiveNodes.pop();
+			n.bird = birds[i];
+			birds[i].hasAudioNode = true;
+
+			var file = this.files[birds[i].species];
+			this.moveVisibleNode(birds[i], n);
+			this.activeNodes.unshift(n);
+			this.activeNodes[0].play(file);
+		}
+	}
+}
+
+AudioPlayer.prototype.moveVisibleNode = function(b, n) {
+	if (b.visible.now) {
+		n.pan(b.azi, b.dist);
+				
+		var x = __gainFromDistance(b.dist, 0.4);
+		n.gain(x);
+	}
+
+	// just left the viewport
+	else if (!b.visible.now && b.visible.then) {
+		n.gain(0.00001);
+	}
+
+	// bird has been gone from the viewport, maybe still fading out
+	else if (!b.visible.now && !b.visible.then) {
+		if (n.gain() <= 0.00001) {
+			n.gain(0);
+			// n.stop();
+		}
+	}
+
+	// just entered the viewport
+	else if (b.visible.now && !b.visible.then) {
+		// n.play();
+		var x = __gainFromDistance(b.dist, 0.4);
+		n.gain(x);
+	}
+}
+
+AudioPlayer.prototype.handleMouseMove = function(birds) {
+	this.updateNodes(birds);
+	// var len = this.birdNodes.length > birds.length ? this.birdNodes.length : birds.length;
+	// for (var i = 0; i < len; i++) {
+	// 	var b = birds[i];
+
+	// 	// pan it around if visible
+	// 	if (b.visible.now) {
+	// 		this.birdNodes[i].pan(b.azi, b.dist);
+			
+	// 		var x = __gainFromDistance(b.dist, 0.4);
+	// 		this.birdNodes[i].gain(x, this.context);
+	// 	}
+	// 	// bird just left the viewport
+	// 	else if (!b.visible.now && b.visible.then) {
+	// 		this.birdNodes[i].gain(0.00001, this.context);
+	// 	}
+
+	// 	// bird has been gone from the viewport, maybe fading out
+	// 	else if (!b.visible.now && !b.visible.then) {
+	// 		if (this.birdNodes[i].GainNode.gain.value <= 0.00001) {
+	// 			this.birdNodes[i].gain(0);
+	// 			this.birdNodes[i].stop();
+	// 		}
+	// 	}
+	// 	else if (b.visible.now && !b.visible.then) {
+	// 		this.birdNodes[i].play();
+	// 		var x = __gainFromDistance(b.dist, 0.4);
+	// 		this.birdNodes[i].gain(x, this.context);
+	// 	}
+	// }
 }
 
 function getHRTF(ctx) {
